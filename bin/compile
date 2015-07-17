@@ -112,7 +112,7 @@ fi
 
 #copy cached PIO tools to BUILD_DIR
 echo -n "-----> Copying PredictionIO executables to $BUILD_DIR dir..."
-cp -r $CAHE_DIR/$PREDICTIONIO_DIR $BUILD_DIR/
+cp -r $CACHE_DIR/$PREDICTIONIO_DIR $BUILD_DIR/
 
 # JAVA_HOME is exported in install_java
 export PREDICTIONIO_HOME=$CACHE_DIR/$PREDICTIONIO_DIR
