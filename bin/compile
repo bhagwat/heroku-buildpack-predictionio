@@ -15,57 +15,48 @@ CACHE_DIR=$2
 curl --silent --location http://heroku-jvm-common.s3.amazonaws.com/jvm-buildpack-common.tar.gz | tar xz
 . bin/java
 
-GRAILS_DIR=".grails"
+PREDICTIONIO_DIR=".PredictionIO"
+PREDICTIONIO_VERSION="0.9.4"
 GRAILS_CMD="grails"
 
-check_build_status()
-{
-  if [ "${PIPESTATUS[*]}" != "0 0" ]; then
-    echo " !     Failed to build app"
-    exit 1
-  fi
-}
-
-install_grails()
+install_predictionio()
 {
   VER_TO_INSTALL=$1
-  GRAILS_URL="http://dist.springframework.org.s3.amazonaws.com/release/GRAILS/grails-$VER_TO_INSTALL.zip"
+  PREDICTIONIO_URL="https://d8k1yxp8elc6b.cloudfront.net/PredictionIO-$VER_TO_INSTALL.tar.gz"
 
-  GRAILS_ZIP_FILE="grails-heroku.zip"
-  echo "-----> Installing Grails $VER_TO_INSTALL....."
-  curl --silent --max-time 150 --location $GRAILS_URL -o $GRAILS_ZIP_FILE
+  PREDICTIONIO_TAR_FILE="PredictionIO.tar.gz"
+  echo "-----> Installing PredictionIO $VER_TO_INSTALL....."
+  curl --silent --max-time 150 --location $PREDICTIONIO_URL -o $PREDICTIONIO_TAR_FILE
 
   # Error checking
-  if [ ! -f $GRAILS_ZIP_FILE ]; then
-    echo "-----> Error downloading Grails framework. Please try again..."
+  if [ ! -f $PREDICTIONIO_TAR_FILE ]; then
+    echo "-----> Error downloading PredictionIO. Please try again..."
     exit 1
   fi
-  if [ -z "`file $GRAILS_ZIP_FILE | grep Zip`" ]; then
-    echo "-----> Error installing Grails framework or unsupported Grails framework version specified. Please review Dev Center for a list of supported versions."
+  if [ -z "`file $PREDICTIONIO_TAR_FILE | grep gzip`" ]; then
+    echo "-----> Error installing PredictionIO or unsupported PredictionIO version specified. Please visit https://docs.prediction.io/install/install-linux for installation guide and supported version"
     exit 1
   fi
 
   #use jar because unzip isn't available
-  jar xf $GRAILS_ZIP_FILE
-  rm $GRAILS_ZIP_FILE
+  tar zxvf $PREDICTIONIO_TAR_FILE
+  rm $PREDICTIONIO_TAR_FILE
   #copy to standard dir location
-  mv grails-$VER_TO_INSTALL $GRAILS_DIR
+  mv PredictionIO-$VER_TO_INSTALL $PREDICTIONIO_DIR
   #make grails command executable
-  chmod +x $GRAILS_DIR/bin/grails
+  chmod +x $PREDICTIONIO_DIR/bin/*
 
   echo "-----> Done"
 }
 
-if [ ! -f $BUILD_DIR/application.properties ] ; then
-    echo "-----> File not found: application.properties. This file is required. Build failed."
-    echo " !     Failed to build app"
+if [ ! -f $BUILD_DIR/engine.json ] ; then
+    echo "-----> File not found: engine.json. This file is required. Build failed."
+    echo " !     Failed to build app" | indent
     exit 1
 fi
     
-GRAILS_VERSION=$(get_property $BUILD_DIR/application.properties 'app.grails.version')
-
-echo "-----> Grails $GRAILS_VERSION app detected"
-echo "       WARNING: The Grails buildpack is currently in Beta."
+echo "-----> PredictionIO recommendation engine app detected"
+echo "       WARNING: The PredictionIO buildpack is currently in Beta." |indent
 
 if [ ! -d $CACHE_DIR ] ; then
   mkdir $CACHE_DIR
@@ -73,7 +64,7 @@ fi
 
 # create default system.properties 
 if [ ! -f ${BUILD_DIR}/system.properties ]; then
-  echo "java.runtime.version=1.6" > ${BUILD_DIR}/system.properties
+  echo "java.runtime.version=1.8" > ${BUILD_DIR}/system.properties
 fi
 
 # install JDK
@@ -81,105 +72,23 @@ javaVersion=$(detect_java_version ${BUILD_DIR})
 echo -n "-----> Installing OpenJDK ${javaVersion}..."
 install_java ${BUILD_DIR} ${javaVersion}
 jdk_overlay ${BUILD_DIR}
-echo "done"
+echo "done"|indent
 
 cd $CACHE_DIR
 
-if [ -f $BUILD_DIR/grailsw ] ; then
-    chmod +x $BUILD_DIR/grailsw
-    GRAILS_CMD="./grailsw"
-else
-  # install grails
-  if [ ! -d $GRAILS_DIR ]; then
-    install_grails $GRAILS_VERSION
-  else
-    INSTALLED_GRAILS_VERSION=$(get_property $GRAILS_DIR/build.properties 'grails.version')
-    if [ "$INSTALLED_GRAILS_VERSION" != "$GRAILS_VERSION" ] ; then
-      echo "-----> Updating Grails version. Previous version was $INSTALLED_GRAILS_VERSION. Updating to $GRAILS_VERSION..."
-      rm -rf $GRAILS_DIR
-      install_grails $GRAILS_VERSION
-    fi
-  fi
+# install grails
+if [ ! -d $PREDICTIONIO_DIR ]; then
+    install_predictionio $PREDICTIONIO_VERSION
 fi
 
 # JAVA_HOME is exported in install_java
-export GRAILS_HOME=$CACHE_DIR/$GRAILS_DIR
-export PATH=$GRAILS_HOME/bin:$PATH
+export PREDICTIONIO_HOME=$CACHE_DIR/$PREDICTIONIO_DIR
+export PATH=$PREDICTIONIO_HOME/bin:$PATH
 
 cd $BUILD_DIR
 
-# if grails cache directory doesn't exist create it
-if [ ! -d $CACHE_DIR/.grails_cache ]; then
-  mkdir $CACHE_DIR/.grails_cache
-fi
-
-# Cache priming option
-# if a populated cache was checked in copy it into the cache
-# remove the checked in cache dir aftewards to save slug size
-if [ -d ivy-cache ]; then
-  echo "-----> Found ivy-cache directory in the repo. Using it to prime the cache"
-  cp -r ivy-cache $CACHE_DIR/.grails_cache/
-  rm -r ivy-cache
-fi
-
-# create .grails directory in the user home and write a settings.groovy that points grails
-# at the correct cache directory
-if [ ! -d $HOME/.grails ]; then
-  mkdir $HOME/.grails
-fi
-
-echo "grails.dependency.cache.dir = '$CACHE_DIR/.grails_cache'" >> $HOME/.grails/settings.groovy
-
-# build app
-if [ "$GRAILS_VERSION" != "1.3.7" ] ; then
-    BUILDCMD_OPT="-plain-output"
-fi
-
-#COMPILECMD="$GRAILS_CMD -Divy.default.ivy.user.dir=$CACHE_DIR compile --non-interactive"
-#echo "-----> Executing $COMPILECMD"
-#eval "$COMPILECMD" | sed -u 's/^/       /'
-#check_build_status
-
-BUILDCMD="$GRAILS_CMD $BUILDCMD_OPT -Divy.default.ivy.user.dir=$CACHE_DIR war --non-interactive"
-echo "-----> Executing $BUILDCMD"
-eval "$BUILDCMD" | sed -u 's/^/       /'
-check_build_status
-
-if [ ! -d server ] ; then
-
-    mkdir server
-
-    if [ "jetty" == "$(get_property ${BUILD_DIR}/system.properties grails.application.container)" ] ; then
-      SERVLET_VERSION=$(get_property $BUILD_DIR/grails-app/conf/BuildConfig.groovy 'grails.servlet.version')
-
-      if [ "$SERVLET_VERSION" == '3.0' ]; then
-        JETTY_RUNNER_VERSION=8.1.10.v20130312
-      else
-        JETTY_RUNNER_VERSION=7.5.4.v20111024
-      fi
-
-      echo "vendored:${JETTY_RUNNER_VERSION}" > ${CACHE_DIR}/jettyVersion
-    fi
-
-    if [ -f $CACHE_DIR/jettyVersion ] ; then
-	      JETTY_RUNNER_VERSION=$(cat $CACHE_DIR/jettyVersion | sed "s/vendored://g")
-        echo "-----> No server directory found. Adding jetty-runner $JETTY_RUNNER_VERSION automatically."
-        DEFAULT_RUNNER_JAR=server/jetty-runner.jar
-        curl -fs http://s3pository.heroku.com/maven-central/org/mortbay/jetty/jetty-runner/$JETTY_RUNNER_VERSION/jetty-runner-$JETTY_RUNNER_VERSION.jar > $DEFAULT_RUNNER_JAR
-        echo "vendored:$JETTY_RUNNER_VERSION" > server/jettyVersion
-    else
-        WEBAPP_RUNNER_VERSION=7.0.22.1
-	echo "-----> No server directory found. Adding webapp-runner $WEBAPP_RUNNER_VERSION automatically."
-        DEFAULT_RUNNER_JAR=server/webapp-runner.jar
-        curl -fs http://s3pository.heroku.com/maven-central/com/github/jsimone/webapp-runner/$WEBAPP_RUNNER_VERSION/webapp-runner-$WEBAPP_RUNNER_VERSION.jar > $DEFAULT_RUNNER_JAR
-	echo "vendored:$WEBAPP_RUNNER_VERSION" > server/webappRunnerVersion
-	echo "vendored:$WEBAPP_RUNNER_VERSION" > $CACHE_DIR/webappRunnerVersion
-    fi
-
-    echo $DEFAULT_RUNNER_JAR > server/defaultRunnerJar
-fi
-
-PROFILE_PATH="$BUILD_DIR/.profile.d/grails.sh"
+PROFILE_PATH="$BUILD_DIR/.profile.d/predictionio.sh"
 mkdir -p $(dirname $PROFILE_PATH)
 echo 'export PATH="/app/.jdk/bin:$PATH"' >> $PROFILE_PATH
+echo 'export PATH="/app/.predictionio/bin:$PATH"' >> $PROFILE_PATH
 
