@@ -50,7 +50,7 @@ install_predictionio()
 
   echo "-----> Done installing PredictionIO"
 
-  install_spark()
+  install_spark
 }
 
 install_spark()
@@ -109,6 +109,7 @@ cd $CACHE_DIR
 if [ ! -d $PREDICTIONIO_DIR ]; then
     install_predictionio $PREDICTIONIO_VERSION
 fi
+
 #copy cached PIO tools to BUILD_DIR
 echo -n "-----> Copying PredictionIO executables to $BUILD_DIR dir..."
 cp -r $CAHE_DIR/$PREDICTIONIO_DIR $BUILD_DIR/
