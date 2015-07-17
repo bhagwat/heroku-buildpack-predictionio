@@ -50,7 +50,7 @@ install_predictionio()
 
   echo "-----> Done installing PredictionIO"
 
-  install_spark
+  #install_spark
 }
 
 install_spark()
