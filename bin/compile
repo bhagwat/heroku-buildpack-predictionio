@@ -12,12 +12,14 @@ CACHE_DIR=$2
 # source in common functions
 . $BIN_DIR/common.sh
 
+echo "BUILD_DIR: $BUILD_DIR"|indent
+echo "CACHE_DIR: $CACHE_DIR"|indent
+
 curl --silent --location http://heroku-jvm-common.s3.amazonaws.com/jvm-buildpack-common.tar.gz | tar xz
 . bin/java
 
-PREDICTIONIO_DIR=".PredictionIO"
+PREDICTIONIO_DIR="PredictionIO"
 PREDICTIONIO_VERSION="0.9.4"
-GRAILS_CMD="grails"
 
 install_predictionio()
 {
@@ -38,15 +40,42 @@ install_predictionio()
     exit 1
   fi
 
-  #use jar because unzip isn't available
+  #extract tar file
   tar zxvf $PREDICTIONIO_TAR_FILE
   rm $PREDICTIONIO_TAR_FILE
   #copy to standard dir location
   mv PredictionIO-$VER_TO_INSTALL $PREDICTIONIO_DIR
-  #make grails command executable
+  #make predictionio commands executable
   chmod +x $PREDICTIONIO_DIR/bin/*
 
-  echo "-----> Done"
+  echo "-----> Done installing PredictionIO"
+
+  install_spark()
+}
+
+install_spark()
+{
+  SPARK_URL="http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.6.tgz"
+
+  SPARK_TAR_FILE="spark-1.4.1-bin-hadoop2.6.tgz"
+  echo "-----> Installing Apache Spark....."
+  curl --silent --max-time 150 --location $SPARK_URL -o $SPARK_TAR_FILE
+
+  # Error checking
+  if [ ! -f $SPARK_TAR_FILE ]; then
+    echo "-----> Error downloading Apache spark. Please try again..."
+    exit 1
+  fi
+
+  #Make sure vendors dir exists
+  echo "-----> Creating dir: $PREDICTIONIO_DIR/vendors"
+  mkdir -p $PREDICTIONIO_DIR/vendors
+
+  #extract tgz file
+  tar zxvfC $PREDICTIONIO_TAR_FILE $PREDICTIONIO_DIR/vendors
+  rm $PREDICTIONIO_TAR_FILE
+
+  echo "-----> Done installing Apache Spark"
 }
 
 if [ ! -f $BUILD_DIR/engine.json ] ; then
@@ -58,11 +87,7 @@ fi
 echo "-----> PredictionIO recommendation engine app detected"
 echo "       WARNING: The PredictionIO buildpack is currently in Beta." |indent
 
-if [ ! -d $CACHE_DIR ] ; then
-  mkdir $CACHE_DIR
-fi
-
-# create default system.properties 
+# create default system.properties
 if [ ! -f ${BUILD_DIR}/system.properties ]; then
   echo "java.runtime.version=1.8" > ${BUILD_DIR}/system.properties
 fi
@@ -74,12 +99,19 @@ install_java ${BUILD_DIR} ${javaVersion}
 jdk_overlay ${BUILD_DIR}
 echo "done"|indent
 
+if [ ! -d $CACHE_DIR ] ; then
+  mkdir $CACHE_DIR
+fi
+
 cd $CACHE_DIR
 
-# install grails
+# install predictionio
 if [ ! -d $PREDICTIONIO_DIR ]; then
     install_predictionio $PREDICTIONIO_VERSION
 fi
+#copy cached PIO tools to BUILD_DIR
+echo -n "-----> Copying PredictionIO executables to $BUILD_DIR dir..."
+cp -r $CAHE_DIR/$PREDICTIONIO_DIR $BUILD_DIR/
 
 # JAVA_HOME is exported in install_java
 export PREDICTIONIO_HOME=$CACHE_DIR/$PREDICTIONIO_DIR
@@ -90,5 +122,5 @@ cd $BUILD_DIR
 PROFILE_PATH="$BUILD_DIR/.profile.d/predictionio.sh"
 mkdir -p $(dirname $PROFILE_PATH)
 echo 'export PATH="/app/.jdk/bin:$PATH"' >> $PROFILE_PATH
-echo 'export PATH="/app/.predictionio/bin:$PATH"' >> $PROFILE_PATH
+echo 'export PATH="/app/PredictionIO/bin:$PATH"' >> $PROFILE_PATH
 
