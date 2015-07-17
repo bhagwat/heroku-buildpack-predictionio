@@ -72,8 +72,8 @@ install_spark()
   mkdir -p $PREDICTIONIO_DIR/vendors
 
   #extract tgz file
-  tar zxvfC $PREDICTIONIO_TAR_FILE $PREDICTIONIO_DIR/vendors
-  rm $PREDICTIONIO_TAR_FILE
+  tar zxvfC $SPARK_TAR_FILE $PREDICTIONIO_DIR/vendors
+  rm $SPARK_TAR_FILE
 
   echo "-----> Done installing Apache Spark"
 }
