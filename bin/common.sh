@@ -12,3 +12,7 @@ get_property()
   grep -E ^$escaped_key[[:space:]=]+ $file | \
   sed -E -e "s/$escaped_key([\ \t]*=[\ \t]*|[\ \t]+)\"?([A-Za-z0-9\.-]*)\"?.*/\2/g"
 }
+
+indent() {
+  sed -u 's/^/       /'
+}

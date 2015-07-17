@@ -1,1 +1,8 @@
 dist-*
+.idea/
+*.iml
+*.ipr
+.project
+.classpath
+target/
+*.log

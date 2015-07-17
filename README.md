@@ -1,26 +1,23 @@
-# Heroku buildpack: Grails
+# Heroku buildpack: PredictionIO
 
-This is a Heroku buildpack for building and deploying Grails apps on Heroku.
+This is a Heroku buildpack for building and deploying Prediction IO recommendation engine.
 
 ## Usage
 
-Create a Git repository for a Grails 1.3.7 or 2.0 app:
+Create a Git repository for a PredictionIO app:
 
-    $ cd mygrailsapp
+    $ cd myRecommendationApp
     $ ls
-    application.properties    lib        src               target    web-app
-    grails-app                scripts    stacktrace.log    test
-    $ grails integrate-with --git
-    | Created Git project files..
+    README.md	build.sbt	data	engine.json	manifest.json	project		src
     $ git init
-    Initialized empty Git repository in /Users/jjoergensen/mygrailsapp/.git/
+    Initialized empty Git repository in /Users/bhagwat/myRecommendationApp/.git/
     $ git commit -m init
     [master (root-commit) 7febdd9] init
      58 files changed, 2788 insertions(+), 0 deletions(-)
-     create mode 100644 .classpath
+     create mode 100644 README.md
      create mode 100644 .gitignore
-     create mode 100644 .project
-     create mode 100644 application.properties
+     create mode 100644 engine.json
+     create mode 100644 manifest.json
     ...
     
 Create a Heroku app on the Cedar stack
@@ -40,25 +37,19 @@ Push the app to Heroku
     Total 73 (delta 2), reused 0 (delta 0)
 
     -----> Heroku receiving push
-    -----> Grails app detected
-    -----> Grails 2.0.0 app detected
-    -----> Installing Grails 2.0.0..... done
-    -----> executing grails -plain-output -Divy.default.ivy.user.dir=/app/tmp/repo.git/.cache war
-
-           |Loading Grails 2.0.0
-           |Configuring classpath
+    -----> PredictionIO App detected
     ...
     
 
 ### Auto-detection
 
-Heroku auto-detects Grails apps by the existence of the `grails-app` directory in the project root and the `application.properties`  file is also expected to exist in the root directory. 
+Heroku auto-detects PredictionIO apps by the existence of the `engine.json` file in the root directory.
 
 ### Using a Customized (Forked) Build Pack
 
 This is the default buildpack repository for Grails. You can fork this repo and tell Heroku to use the forked version by passing the `--buildpack` option to `heroku create`:
 
-    $ heroku create --stack cedar --buildpack http://github.com/jesperfj/heroku-buildpack-grails.git
+    $ heroku create --stack cedar --buildpack git@github.com:bhagwat/heroku-buildpack-predictionio.git
 
 ## License
 
