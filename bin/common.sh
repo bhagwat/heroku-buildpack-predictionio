@@ -18,9 +18,15 @@ indent() {
 }
 
 export_env_dir() {
-  env_dir=$3
+echo "From env_dir function"
+echo $1
+echo $2
+echo $3
+  env_dir=$1
   whitelist_regex=${2:-''}
-  blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH)$'}
+  blacklist_regex=${1:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH)$'}
+  echo $whitelist_regex
+  echo $blacklist_regex
   if [ -d "$env_dir" ]; then
     for e in $(ls $env_dir); do
       echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &&

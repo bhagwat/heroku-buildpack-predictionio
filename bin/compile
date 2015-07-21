@@ -12,7 +12,7 @@ CACHE_DIR=$2
 # source in common functions
 . $BIN_DIR/common.sh
 echo "-----> Export Heroku config as Env vars....."
-export_env_dir
+export_env_dir $3
 
 echo "BUILD_DIR: $BUILD_DIR"|indent
 echo "CACHE_DIR: $CACHE_DIR"|indent
