@@ -126,14 +126,27 @@ install_predictionio $PREDICTIONIO_VERSION
 
 #copy cached PIO tools to BUILD_DIR
 echo -n "-----> Copying PredictionIO executables to $BUILD_DIR dir..."
+rm -rf $BUILD_DIR/$PREDICTIONIO_DIR
 cp -r $CACHE_DIR/$PREDICTIONIO_DIR $BUILD_DIR/
 
-#Bypass cache and install the predictionIO binaries in build dir directly
 cd $BUILD_DIR
 
 # JAVA_HOME is exported in install_java
 export PREDICTIONIO_HOME=$CACHE_DIR/$PREDICTIONIO_DIR
 export PATH=$PREDICTIONIO_HOME/bin:$PATH
+
+echo "-----> Executing poi eventServer in background and sleeping for 10 seconds"
+
+pio eventserver &
+sleep 10
+
+echo "-----> POI status"
+pio status
+
+BUILDCMD="pio build --verbose"
+
+echo "-----> Executing $BUILDCMD"
+eval "$BUILDCMD" | sed -u 's/^/       /'
 
 
 PROFILE_PATH="$BUILD_DIR/.profile.d/predictionio.sh"
