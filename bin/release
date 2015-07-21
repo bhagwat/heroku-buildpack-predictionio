@@ -12,5 +12,5 @@ config_vars:
 addons:
   heroku-postgresql:dev
 default_process_types:
-  web: pio eventserver
+  web: pio deploy --port $PORT
 EOF
