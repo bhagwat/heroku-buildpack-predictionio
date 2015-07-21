@@ -138,6 +138,6 @@ export PATH=$PREDICTIONIO_HOME/bin:$PATH
 
 PROFILE_PATH="$BUILD_DIR/.profile.d/predictionio.sh"
 mkdir -p $(dirname $PROFILE_PATH)
-echo 'export POI_HOME="$HOME/$PREDICTIONIO_DIR"' >> $PROFILE_PATH
+echo 'export POI_HOME="$HOME/PredictionIO"' >> $PROFILE_PATH
 echo 'export PATH="$HOME/.jdk/bin:$PATH"' >> $PROFILE_PATH
 echo 'export PATH="$POI_HOME/bin:$PATH"' >> $PROFILE_PATH
