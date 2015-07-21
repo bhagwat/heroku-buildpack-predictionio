@@ -85,10 +85,9 @@ PIO_CONFIG_FILE_PATH="$PREDICTIONIO_DIR/conf/pio-env.sh"
 echo "Configuring database >>>>>> Before"
 cat $PIO_CONFIG_FILE_PATH
 echo  ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-sed -i "" "s|SPARK_HOME=/opt/PredictionIO/vendors/spark-1.3.1|SPARK_HOME=/app/PredictionIO/vendors/spark-1.4.1-bin-hadoop2.6|" $PIO_CONFIG_FILE_PATH
-sed -i "" "s|jdbc:postgresql://localhost/pio|$PIO_STORAGE_SOURCES_PGSQL_URL|" $PIO_CONFIG_FILE_PATH
-sed -i "" "s|PIO_STORAGE_SOURCES_PGSQL_USERNAME=pio|PIO_STORAGE_SOURCES_PGSQL_USERNAME=$PIO_STORAGE_SOURCES_PGSQL_USERNAME|" $PIO_CONFIG_FILE_PATH
-sed -i "" "s|PIO_STORAGE_SOURCES_PGSQL_PASSWORD=pio|PIO_STORAGE_SOURCES_PGSQL_PASSWORD=$PIO_STORAGE_SOURCES_PGSQL_PASSWORD|" $PIO_CONFIG_FILE_PATH
+sed -i "s|jdbc:postgresql://localhost/pio|$PIO_STORAGE_SOURCES_PGSQL_URL|" $PIO_CONFIG_FILE_PATH
+sed -i "s|PIO_STORAGE_SOURCES_PGSQL_USERNAME=pio|PIO_STORAGE_SOURCES_PGSQL_USERNAME=$PIO_STORAGE_SOURCES_PGSQL_USERNAME|" $PIO_CONFIG_FILE_PATH
+sed -i "s|PIO_STORAGE_SOURCES_PGSQL_PASSWORD=pio|PIO_STORAGE_SOURCES_PGSQL_PASSWORD=$PIO_STORAGE_SOURCES_PGSQL_PASSWORD|" $PIO_CONFIG_FILE_PATH
 echo  "After>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 cat $PIO_CONFIG_FILE_PATH
 echo "-----> Done configuring PG database"
@@ -140,8 +139,6 @@ export PATH=$PREDICTIONIO_HOME/bin:$PATH
 
 PROFILE_PATH="$BUILD_DIR/.profile.d/predictionio.sh"
 mkdir -p $(dirname $PROFILE_PATH)
-echo 'export PATH="/app/.jdk/bin:$PATH"' >> $PROFILE_PATH
-echo 'export PATH="/app/PredictionIO/bin:$PATH"' >> $PROFILE_PATH
-
-sed -i ""
-/app/PredictionIO
+echo 'export POI_HOME="$HOME/$PREDICTIONIO_DIR"' >> $PROFILE_PATH
+echo 'export PATH="$HOME/.jdk/bin:$PATH"' >> $PROFILE_PATH
+echo 'export PATH="$POI_HOME/bin:$PATH"' >> $PROFILE_PATH
