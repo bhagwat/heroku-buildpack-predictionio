@@ -84,17 +84,10 @@ install_spark()
 configure_persistence()
 {
 PIO_CONFIG_FILE_PATH="$PREDICTIONIO_DIR/conf/pio-env.sh"
-echo "Configuring database >>>>>> Before"
-echo $PIO_STORAGE_SOURCES_PGSQL_USERNAME
-echo $PIO_STORAGE_SOURCES_PGSQL_PASSWORD
-echo $PIO_STORAGE_SOURCES_PGSQL_URL
-cat $PIO_CONFIG_FILE_PATH
-echo  ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+echo "Configuring database"
 sed -i "s|jdbc:postgresql://localhost/pio|$PIO_STORAGE_SOURCES_PGSQL_URL|" $PIO_CONFIG_FILE_PATH
 sed -i "s|PIO_STORAGE_SOURCES_PGSQL_USERNAME=pio|PIO_STORAGE_SOURCES_PGSQL_USERNAME=$PIO_STORAGE_SOURCES_PGSQL_USERNAME|" $PIO_CONFIG_FILE_PATH
 sed -i "s|PIO_STORAGE_SOURCES_PGSQL_PASSWORD=pio|PIO_STORAGE_SOURCES_PGSQL_PASSWORD=$PIO_STORAGE_SOURCES_PGSQL_PASSWORD|" $PIO_CONFIG_FILE_PATH
-echo  "After>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-cat $PIO_CONFIG_FILE_PATH
 echo "-----> Done configuring PG database"
 }
 
@@ -126,9 +119,10 @@ fi
 cd $CACHE_DIR
 
 # install predictionio
-if [ ! -d $PREDICTIONIO_DIR ]; then
-    install_predictionio $PREDICTIONIO_VERSION
-fi
+#if [ ! -d $PREDICTIONIO_DIR ]; then
+#    install_predictionio $PREDICTIONIO_VERSION
+#fi
+install_predictionio $PREDICTIONIO_VERSION
 
 #copy cached PIO tools to BUILD_DIR
 echo -n "-----> Copying PredictionIO executables to $BUILD_DIR dir..."
