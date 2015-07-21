@@ -169,11 +169,12 @@ pio status
 BUILDCMD="pio build --verbose"
 
 echo "-----> Executing $BUILDCMD"
-eval "$BUILDCMD" | sed -u 's/^/       /'
-
+pio build --verbose
 
 PROFILE_PATH="$BUILD_DIR/.profile.d/predictionio.sh"
 mkdir -p $(dirname $PROFILE_PATH)
 echo 'export POI_HOME="$HOME/PredictionIO"' >> $PROFILE_PATH
 echo 'export PATH="$HOME/.jdk/bin:$PATH"' >> $PROFILE_PATH
 echo 'export PATH="$POI_HOME/bin:$PATH"' >> $PROFILE_PATH
+
+pkill java
