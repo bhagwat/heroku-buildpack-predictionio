@@ -81,7 +81,7 @@ install_spark()
 
 configure_persistence()
 {
-export PIO_CONFIG_FILE_PATH="$PREDICTIONIO_DIR/conf/pio-env.sh"
+PIO_CONFIG_FILE_PATH="$PREDICTIONIO_DIR/conf/pio-env.sh"
 echo "Configuring database >>>>>> Before"
 cat $PIO_CONFIG_FILE_PATH
 echo  ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
