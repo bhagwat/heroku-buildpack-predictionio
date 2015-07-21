@@ -11,6 +11,8 @@ CACHE_DIR=$2
 
 # source in common functions
 . $BIN_DIR/common.sh
+echo "-----> Export Heroku config as Env vars....."
+export_env_dir
 
 echo "BUILD_DIR: $BUILD_DIR"|indent
 echo "CACHE_DIR: $CACHE_DIR"|indent
@@ -83,6 +85,9 @@ configure_persistence()
 {
 PIO_CONFIG_FILE_PATH="$PREDICTIONIO_DIR/conf/pio-env.sh"
 echo "Configuring database >>>>>> Before"
+echo $PIO_STORAGE_SOURCES_PGSQL_USERNAME
+echo $PIO_STORAGE_SOURCES_PGSQL_PASSWORD
+echo $PIO_STORAGE_SOURCES_PGSQL_URL
 cat $PIO_CONFIG_FILE_PATH
 echo  ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 sed -i "s|jdbc:postgresql://localhost/pio|$PIO_STORAGE_SOURCES_PGSQL_URL|" $PIO_CONFIG_FILE_PATH
