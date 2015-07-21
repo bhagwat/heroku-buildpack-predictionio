@@ -122,11 +122,13 @@ cd $CACHE_DIR
 #if [ ! -d $PREDICTIONIO_DIR ]; then
 #    install_predictionio $PREDICTIONIO_VERSION
 #fi
+rm -rf $PREDICTIONIO_DIR
+rm -rf $BUILD_DIR/PredictionIO*
+
 install_predictionio $PREDICTIONIO_VERSION
 
 #copy cached PIO tools to BUILD_DIR
 echo -n "-----> Copying PredictionIO executables to $BUILD_DIR dir..."
-rm -rf $BUILD_DIR/PredictionIO*
 cp -r $CACHE_DIR/$PREDICTIONIO_DIR $BUILD_DIR/
 
 cd $BUILD_DIR
