@@ -103,21 +103,19 @@ if [ ! -d $CACHE_DIR ] ; then
   mkdir $CACHE_DIR
 fi
 
-#cd $CACHE_DIR
+cd $CACHE_DIR
 
 # install predictionio
-#if [ ! -d $PREDICTIONIO_DIR ]; then
-#    install_predictionio $PREDICTIONIO_VERSION
-#fi
+if [ ! -d $PREDICTIONIO_DIR ]; then
+    install_predictionio $PREDICTIONIO_VERSION
+fi
 
 #copy cached PIO tools to BUILD_DIR
-#echo -n "-----> Copying PredictionIO executables to $BUILD_DIR dir..."
-#cp -r $CACHE_DIR/$PREDICTIONIO_DIR $BUILD_DIR/
+echo -n "-----> Copying PredictionIO executables to $BUILD_DIR dir..."
+cp -r $CACHE_DIR/$PREDICTIONIO_DIR $BUILD_DIR/
 
 #Bypass cache and install the predictionIO binaries in build dir directly
 cd $BUILD_DIR
-install_predictionio $PREDICTIONIO_VERSION
-
 
 # JAVA_HOME is exported in install_java
 export PREDICTIONIO_HOME=$CACHE_DIR/$PREDICTIONIO_DIR
